@@ -1,1 +1,1 @@
-# react-typescipt-router-template
+# react-typescript-router-template
