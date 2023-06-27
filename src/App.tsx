@@ -5,6 +5,11 @@ import {
   RouterProvider,
   useNavigation,
 } from "react-router-dom";
+import BasicTable from "./components/Table";
+import { UserManagementService } from "./service/usermanagement.service";
+import { useEffect, useState } from "react";
+import { User } from "./intefaces";
+import { Button } from "@mui/material";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +24,11 @@ const router = createBrowserRouter([
         path: "about",
         // Single route in lazy file
         lazy: () => import("./pages/About"),
+      },
+      {
+        path: "addUser",
+        // Single route in lazy file
+        lazy: () => import("./pages/AddUser"),
       },
       {
         path: "dashboard",
@@ -118,9 +128,36 @@ function Layout() {
 }
 
 function Home() {
+  const [users, setUsers] = useState<User[]>([]);
+  const fetchData = async () => {
+    const usersApiData: any = await UserManagementService.getUsers();
+    console.log("user", usersApiData);
+    const usersData: User[] = [];
+    if (usersApiData && usersApiData.data && usersApiData.data.length > 0) {
+      usersApiData.data.sort((a: User, b: User) =>
+        a.name.localeCompare(b.name)
+      );
+      usersApiData.data.forEach((item: any, index: number) => {
+        usersData.push({
+          name: item.name,
+          email: item.email,
+          city: item.address?.city,
+          company: item.company?.name,
+        });
+        if (index === usersApiData.data.length - 1) {
+          setUsers(usersData);
+        }
+      });
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
   return (
     <div>
       <h2>Home</h2>
+      <Link to="/addUser">Add User</Link>
+      <BasicTable data={users} />
     </div>
   );
 }
